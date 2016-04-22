@@ -52,6 +52,14 @@ class QueuedMailer extends \Mailer
             'Status' => 'Queued'
         ));
 
+        if (!empty($customheaders['Cc'])) {
+            $queuedEmail->CC = $customheaders['Cc'];
+        }
+
+        if (!empty($customheaders['Bcc'])) {
+            $queuedEmail->BCC = $customheaders['Bcc'];
+        }
+
         if ($attachedFiles) {
             $queuedEmail->addAttachments($attachedFiles);
         }

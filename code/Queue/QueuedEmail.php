@@ -1,6 +1,6 @@
-<?php namespace WebTorque\QueuedMailer\Queue;
+<?php
 
-
+namespace WebTorque\QueuedMailer\Queue;
 
 class QueuedEmail extends \DataObject
 {
@@ -16,7 +16,8 @@ class QueuedEmail extends \DataObject
         'Attachments' => 'Text',
         'Headers' => 'Text',
         'LastAttempt' => 'SS_Datetime',
-        'Status' => 'Enum("Queued, Sent, Failed, Retry", "Queued")'
+        'Status' => 'Enum("Queued, Sent, Failed, Retry", "Queued")',
+        'Identifier' => 'Varchar(100)'
     );
 
     public function addAttachments(array $attachments)

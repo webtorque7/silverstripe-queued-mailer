@@ -23,8 +23,8 @@ class QueueProcessor
         $lastAttemptTime = \DBField::create_field('SS_Datetime',
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
 
-        $batch = QueuedEmail::get()->filter(array(
-            'LastAttempt:LessThanOrEqual' => $lastAttemptTime->Value()
+        $batch = QueuedEmail::get()->where(array(
+            '"LastAttempt" <= ? OR LastAttempt IS NULL' => array($lastAttemptTime->getValue())
         ))->limit($batchSize);
 
         foreach ($batch as $email) {
@@ -56,6 +56,6 @@ class QueueProcessor
 
     public static function config()
     {
-        return \Config::inst()->forClass(__CLASS__);
+        return \Config::inst()->forClass('QueueProcessor');
     }
 }
