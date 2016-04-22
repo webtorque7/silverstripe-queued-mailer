@@ -1,0 +1,1 @@
+# silverstripe-queued-mailer
