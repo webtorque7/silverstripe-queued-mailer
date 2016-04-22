@@ -1,0 +1,14 @@
+{
+    "name": "webtorque/queued-mailer",
+    "type": "silverstripe-module",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Conrad",
+            "email": "conrad@webtorque.co.nz"
+        }
+    ],
+    "require": {
+        "mailin-api/mailin-api-php": "^1.0"
+    }
+}
