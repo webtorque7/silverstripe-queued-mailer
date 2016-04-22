@@ -20,12 +20,29 @@ class QueuedEmail extends \DataObject
         'Identifier' => 'Varchar(100)'
     );
 
+    /**
+     * Adds arrays, should be in the form:
+     * array(
+     *  'filename' => 'filedata'
+     * )
+     *
+     * @param array $attachments array attachments
+     * @return $this
+     */
     public function addAttachments(array $attachments)
     {
         $this->Attachments = json_encode($attachments);
         return $this;
     }
 
+    /**
+     * Returns an array of attachments in the form:
+     * array(
+     *  'filename' => 'base64encoded file data'
+     * )
+     *
+     * @return array
+     */
     public function loadAttachments()
     {
         $return = array();
@@ -40,12 +57,29 @@ class QueuedEmail extends \DataObject
         return $return;
     }
 
+    /**
+     * Add an array of headers, should be in the form:
+     * array(
+     *  'headername' => 'headervalue'
+     * )
+     *
+     * @param array $headers
+     * @return $this
+     */
     public function addHeaders(array $headers)
     {
         $this->Headers = json_encode($headers);
         return $this;
     }
 
+    /**
+     * Returns the headers in an array in the format:
+     * array(
+     *  'headername' => 'headervalue'
+     * )
+     *
+     * @return array
+     */
     public function loadHeaders()
     {
         if ($this->Headers) {
