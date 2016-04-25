@@ -9,6 +9,7 @@
         }
     ],
     "require": {
-        "mailin-api/mailin-api-php": "^1.0"
+        "mailin-api/mailin-api-php": "^1.0",
+        "silverstripe/crontask": "^1.1"
     }
 }

@@ -14,6 +14,18 @@ class QueueProcessor
         $this->transport = $transport;
     }
 
+    /**
+     * Process the email queue
+     *
+     * To configure add to yml file
+     *
+     * <code>
+     * QueueProcessor:
+     *   batch_size: 100
+     *   retry_time: 30 #minutes to wait unit retrying
+     *   application_identifier: 'MyApplication' #identifier if using multiple apps
+     * </code>
+     */
     public function process()
     {
         $batchSize = self::config()->batch_size;
@@ -54,6 +66,9 @@ class QueueProcessor
         }
     }
 
+    /**
+     * @return \Config_ForClass
+     */
     public static function config()
     {
         return \Config::inst()->forClass('QueueProcessor');

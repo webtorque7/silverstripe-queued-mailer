@@ -58,11 +58,11 @@ class SendinBlueTransport implements Transport
             'headers' => $headers
         );
 
-        if ($attachments) {
+        if (!empty($attachments)) {
             $data['attachment'] = $attachments;
         }
 
-        if ($replyTo) {
+        if (!empty($replyTo)) {
             $data['replyTo'] = $replyTo;
         }
 
