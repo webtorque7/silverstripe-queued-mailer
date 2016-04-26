@@ -12,5 +12,6 @@ class QueuedMailerCronTask implements \CronTask
     {
         $processor = \Injector::inst()->get('QueueProcessor');
         $processor->process();
+        $processor->cleanup();
     }
 }

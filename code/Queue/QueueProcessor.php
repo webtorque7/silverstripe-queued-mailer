@@ -2,7 +2,7 @@
 
 use WebTorque\QueuedMailer\Transport\Transport;
 
-class QueueProcessor
+class QueueProcessor implements QueueProcessorInterface
 {
     /**
      * @var Transport
@@ -36,7 +36,7 @@ class QueueProcessor
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
 
         $batch = QueuedEmail::get()->where(array(
-            '"LastAttempt" <= ? OR LastAttempt IS NULL' => array($lastAttemptTime->getValue())
+            sprintf('"LastAttempt" <= \'%s\' OR LastAttempt IS NULL', $lastAttemptTime->getValue())
         ))->limit($batchSize);
 
         foreach ($batch as $email) {
@@ -63,6 +63,31 @@ class QueueProcessor
             }
 
             $email->write();
+        }
+    }
+
+    /**
+     * Remove old emails so we don't clutter up the db over time
+     */
+    public function cleanup()
+    {
+        $cleanupDays = self::config()->cleanup_days;
+        $batchSize = self::config()->batch_size;
+
+        $cleanupTime = \DBField::create_field('SS_Datetime',
+            strtotime('-' . $cleanupDays . 'd', strtotime(\SS_Datetime::now())));
+
+        $emails = QueuedEmail::get()->where(sprintf(
+                '("Status" = \'Sent\' AND "Created" <= \'%s\') OR (\"Status\" = \'Failed\' AND "LastAttempt" <= \'%s\')',
+                $cleanupTime->getValue(),
+                $cleanupTime->getValue()
+            )
+        )->limit($batchSize);
+
+        //do them individually incase they have been inherited and there are multiple tables
+        //DB::query would be more efficient
+        foreach ($emails as $email) {
+            $email->delete();
         }
     }
 
