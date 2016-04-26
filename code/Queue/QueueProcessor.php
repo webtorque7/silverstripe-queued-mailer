@@ -36,7 +36,7 @@ class QueueProcessor implements QueueProcessorInterface
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
 
         $batch = QueuedEmail::get()->where(
-            sprintf('"LastAttempt" <= \'%s\' OR LastAttempt IS NULL', $lastAttemptTime->getValue())
+            sprintf('("LastAttempt" <= \'%s\' OR LastAttempt IS NULL) AND "Status" <> \'Sent\'', $lastAttemptTime->getValue())
         )->limit($batchSize);
 
         foreach ($batch as $email) {
