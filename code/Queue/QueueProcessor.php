@@ -35,9 +35,9 @@ class QueueProcessor implements QueueProcessorInterface
         $lastAttemptTime = \DBField::create_field('SS_Datetime',
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
 
-        $batch = QueuedEmail::get()->where(array(
+        $batch = QueuedEmail::get()->where(
             sprintf('"LastAttempt" <= \'%s\' OR LastAttempt IS NULL', $lastAttemptTime->getValue())
-        ))->limit($batchSize);
+        )->limit($batchSize);
 
         foreach ($batch as $email) {
             $result = $this->transport->send(
