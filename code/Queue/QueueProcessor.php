@@ -75,7 +75,7 @@ class QueueProcessor implements QueueProcessorInterface
         $batchSize = self::config()->batch_size;
 
         $cleanupTime = \DBField::create_field('SS_Datetime',
-            strtotime('-' . $cleanupDays . 'd', strtotime(\SS_Datetime::now())));
+            strtotime('-' . $cleanupDays . 'days', strtotime(\SS_Datetime::now())));
 
         $emails = QueuedEmail::get()->where(sprintf(
                 '("Status" = \'Sent\' AND "Created" <= \'%s\') OR ("Status" = \'Failed\' AND "LastAttempt" <= \'%s\')',
