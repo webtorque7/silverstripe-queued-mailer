@@ -78,7 +78,7 @@ class QueueProcessor implements QueueProcessorInterface
             strtotime('-' . $cleanupDays . 'd', strtotime(\SS_Datetime::now())));
 
         $emails = QueuedEmail::get()->where(sprintf(
-                '("Status" = \'Sent\' AND "Created" <= \'%s\') OR (\"Status\" = \'Failed\' AND "LastAttempt" <= \'%s\')',
+                '("Status" = \'Sent\' AND "Created" <= \'%s\') OR ("Status" = \'Failed\' AND "LastAttempt" <= \'%s\')',
                 $cleanupTime->getValue(),
                 $cleanupTime->getValue()
             )
