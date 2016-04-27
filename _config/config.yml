@@ -1,0 +1,28 @@
+Name: queuedmailer
+---
+Injector:
+
+  Email:
+    properties:
+      mailer: '%$Mailer'
+
+  Mailer:
+    class: 'WebTorque\QueuedMailer\Mailer\QueuedMailer'
+
+# Add this to your own config
+#  MailTransport:
+#    class: 'WebTorque\QueuedMailer\Transport\SendinBlueTransport'
+#    constructor:
+#      0: 'https://api.sendinblue.com/v2.0' #api url
+#      1: 'YOURKEY' #api key
+#      2: 'IPADDRESS' #optional ip address to use to send out email
+
+  QueueProcessor:
+    class: 'WebTorque\QueuedMailer\Queue\QueueProcessor'
+    constructor:
+      0: '%$MailTransport'
+QueueProcessor:
+  batch_size: 100
+#  application_indentifier: 'ss-default' #name of application using api
+  retry_time: 30
+  cleanup_days: 5

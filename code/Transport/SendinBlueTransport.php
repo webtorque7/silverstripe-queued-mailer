@@ -8,9 +8,16 @@ class SendinBlueTransport implements Transport
      */
     private $mailin;
 
-    public function __construct($url, $accessKey)
+    /**
+     * IP Address of SendinBlue server
+     * @var string
+     */
+    private $ipAddress;
+
+    public function __construct($url, $accessKey, $ipAddress = null)
     {
         $this->mailin = new \Sendinblue\Mailin($url, $accessKey);
+        $this->ipAddress = $ipAddress;
     }
 
     /**
@@ -35,6 +42,10 @@ class SendinBlueTransport implements Transport
         //add some extra info for tracking etc
         $headers['X-Mailin-custom'] = $identifier;
         $headers['X-Mailin-Tag'] = $app;
+
+        if (!empty($this->ipAddress)) {
+            $headers['X-Mailin-IP'] = $this->ipAddress;
+        }
 
         $name = '';
 
