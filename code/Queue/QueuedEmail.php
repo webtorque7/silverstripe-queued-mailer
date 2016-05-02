@@ -50,7 +50,7 @@ class QueuedEmail extends \DataObject
             $attachments = json_decode($this->Attachments, true);
 
             foreach ($attachments as $attachment) {
-                $return[$attachment['filename']] = base64_encode($attachment['content']);
+                $return[$attachment['filename']] = base64_encode($attachment['contents']);
             }
         }
 

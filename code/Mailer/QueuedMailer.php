@@ -13,23 +13,15 @@ class QueuedMailer extends \Mailer
 {
     public function sendPlain($to, $from, $subject, $plainContent, $attachedFiles = false, $customheaders = false)
     {
-        $queuedEmail = QueuedEmail::create(array(
-            'To' => $to,
-            'From' => $from,
-            'Subject' => $subject,
-            'Plain' => $plainContent,
-            'Status' => 'Queued'
-        ));
-
-        if ($attachedFiles) {
-            $queuedEmail->addAttachments($attachedFiles);
-        }
-
-        if ($customheaders) {
-            $queuedEmail->addHeaders($customheaders);
-        }
-
-        $queuedEmail->write();
+        $this->send(
+            $to,
+            $from,
+            $subject,
+            '',
+            $attachedFiles,
+            $customheaders,
+            $plainContent
+        );
 
         return true;
     }
@@ -42,6 +34,96 @@ class QueuedMailer extends \Mailer
         $attachedFiles = false,
         $customheaders = false,
         $plainContent = false
+    ) {
+
+        $this->send(
+            $to,
+            $from,
+            $subject,
+            $htmlContent,
+            $plainContent,
+            $attachedFiles,
+            $customheaders
+        );
+
+        return true;
+    }
+
+    /**
+     * Sends the email, if customheader['queue'] is set it adds it to a queue rather than sending immediately
+     *
+     * @param $to
+     * @param $from
+     * @param $subject
+     * @param $htmlContent
+     * @param $plainContent
+     * @param bool $attachedFiles
+     * @param bool $customheaders
+     * @param bool $plainContent
+     */
+    public function send(
+        $to,
+        $from,
+        $subject,
+        $htmlContent,
+        $plainContent = false,
+        $attachedFiles = false,
+        $customheaders = false
+    ) {
+        if ($customheaders && !empty($customheaders['queue'])) {
+            unset($customheaders['queue']);
+            $this->queue(
+                $to,
+                $from,
+                $subject,
+                $htmlContent,
+                $plainContent,
+                $attachedFiles,
+                $customheaders
+            );
+        } else {
+            /**
+             * @var \WebTorque\QueuedMailer\Transport\Transport $transport
+             */
+            $appIdentifier = self::config()->application_indentifier;
+            $transport = \Injector::inst()->get('MailTransport');
+            $result = $transport->send(
+                $appIdentifier,
+                $appIdentifier . '-' . rand() . '-' . time(),
+                $to,
+                $from,
+                $subject,
+                $htmlContent,
+                $plainContent,
+                $customheaders && !empty($customheaders['cc']) ? $customheaders['cc'] : null,
+                $customheaders && !empty($customheaders['bcc']) ? $customheaders['bcc'] : null,
+                $attachedFiles,
+                $customheaders
+            );
+
+            //if failed, queue it to be retried
+            if (!$result) {
+                $this->queue(
+                    $to,
+                    $from,
+                    $subject,
+                    $htmlContent,
+                    $plainContent,
+                    $attachedFiles,
+                    $customheaders
+                );
+            }
+        }
+    }
+
+    public function queue(
+        $to,
+        $from,
+        $subject,
+        $htmlContent,
+        $plainContent = false,
+        $attachedFiles = false,
+        $customheaders = false
     ) {
         $queuedEmail = QueuedEmail::create(array(
             'To' => $to,
@@ -69,7 +151,5 @@ class QueuedMailer extends \Mailer
         }
 
         $queuedEmail->write();
-
-        return true;
     }
 }

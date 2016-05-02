@@ -21,10 +21,10 @@ class QueuedMailerTest extends FunctionalTest
         $email->setBcc($bcc);
         $email->setCc($cc);
         $email->setBody($body);
+        $email->addCustomHeader('queue', 1);
         $email->send();
 
-        $email = \WebTorque\QueuedMailer\Queue\QueuedEmail::get()->filter('To', '123456@sendto.com')->first();
-
+        $email = \WebTorque\QueuedMailer\Queue\QueuedEmail::get()->filter('To', $to)->first();
 
         $this->assertNotNull($email, 'Should return a QueuedEmail');
         $this->assertEquals($to, $email->To);
@@ -53,6 +53,7 @@ class QueuedMailerTest extends FunctionalTest
         $email->setFrom($from);
         $email->setSubject($subject);;
         $email->setBody($body);
+        $email->addCustomHeader('queue', 1);
         $email->send();
 
         $processor = Injector::inst()->get('QueueProcessor');
@@ -63,5 +64,38 @@ class QueuedMailerTest extends FunctionalTest
         $this->assertNotNull($sentEmail, 'Should return a QueuedEmail');
         $this->assertEquals('Sent', $sentEmail->Status);
         $this->assertNotEmpty($sentEmail->Identifier);
+    }
+
+    public function testAttachments()
+    {
+        $to = 'Conrad Dobbs<conrad.test.1@webtorque.co.nz>';
+        $from = 'test@webtorque.co.nz';
+        $subject = 'This is my test subject';
+        $body = 'This is my body';
+
+        Injector::inst()->registerService(new \WebTorque\QueuedMailer\Mailer\QueuedMailer(), 'Mailer');
+        Email::set_mailer(Injector::inst()->get('Mailer'));
+
+        $email = Email::create();
+        $email->setTo($to);
+        $email->setFrom($from);
+        $email->setSubject($subject);;
+        $email->setBody($body);
+        $email->addCustomHeader('queue', 1);
+        $email->attachFileFromString('This is my file', 'test.txt');
+        $email->send();
+
+        $processor = Injector::inst()->get('QueueProcessor');
+        $processor->process();
+
+        $sentEmail = \WebTorque\QueuedMailer\Queue\QueuedEmail::get()->filter('To', $to)->first();
+
+        $this->assertNotNull($sentEmail, 'Should return a QueuedEmail');
+        $this->assertEquals('Sent', $sentEmail->Status);
+        $this->assertNotEmpty($sentEmail->Attachments);
+
+        $attachments = $sentEmail->loadAttachments();
+        $this->assertNotEmpty($attachments, 'Should return an array of attachments');
+        $this->assertNotEmpty($attachments['test.txt'], 'Filename should be present in attachments array');
     }
 }

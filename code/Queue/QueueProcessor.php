@@ -30,7 +30,7 @@ class QueueProcessor implements QueueProcessorInterface
     {
         $batchSize = self::config()->batch_size;
         $retryTime = self::config()->retry_time;
-        $appIdentifier = self::config()->application_indentifier;
+        $appIdentifier = self::config()->application_identifier;
 
         $lastAttemptTime = \DBField::create_field('SS_Datetime',
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
