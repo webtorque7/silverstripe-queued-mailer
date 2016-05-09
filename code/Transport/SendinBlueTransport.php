@@ -77,6 +77,14 @@ class SendinBlueTransport implements Transport
             $data['replyTo'] = $replyTo;
         }
 
+        if (!empty($cc)) {
+            $data['cc'] = $cc;
+        }
+
+        if (!empty($bcc)) {
+            $data['bcc'] = $bcc;
+        }
+
         $result = $this->mailin->send_email($data);
 
         return $result['code'] === 'success' ? $result['data']['message-id'] : false;

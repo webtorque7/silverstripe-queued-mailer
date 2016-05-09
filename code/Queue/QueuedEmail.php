@@ -31,7 +31,16 @@ class QueuedEmail extends \DataObject
      */
     public function addAttachments(array $attachments)
     {
-        $this->Attachments = json_encode($attachments);
+        $encodedContents = array();
+
+        if (!empty($attachments)) {
+            foreach ($attachments as $attachment) {
+                $attachment['contents'] = base64_encode($attachment['contents']);
+                $encodedContents[] = $attachment;
+            }
+        }
+
+        $this->Attachments = json_encode($encodedContents);
         return $this;
     }
 
@@ -50,7 +59,7 @@ class QueuedEmail extends \DataObject
             $attachments = json_decode($this->Attachments, true);
 
             foreach ($attachments as $attachment) {
-                $return[$attachment['filename']] = base64_encode($attachment['content']);
+                $return[$attachment['filename']] = $attachment['content'];
             }
         }
 

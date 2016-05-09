@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @todo Create a Mock object for SendinBlue api so can better test all email fields etc (and not actually require sending
+ * emails)
+ *
+ * Class QueuedMailerTest
+ */
 class QueuedMailerTest extends FunctionalTest
 {
     public function testMailQueue()
