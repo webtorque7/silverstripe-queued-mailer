@@ -69,7 +69,7 @@ class SendinBlueTransport implements Transport
             $ccs = explode(',', $cc);
             foreach ($ccs as $aCc) {
                 $ccDetails = $this->extractEmailToDetails($aCc);
-                $data['ccc'][] = array($ccDetails['email'] => $ccDetails['name']);
+                $data['ccc'][$ccDetails['email']] = $ccDetails['name'];
             }
         }
 
@@ -77,7 +77,7 @@ class SendinBlueTransport implements Transport
             $bccs = explode(',', $bcc);
             foreach ($bccs as $aBcc) {
                 $bccDetails = $this->extractEmailToDetails($aBcc);
-                $data['bcc'][] = array($bccDetails['email'] => $bccDetails['name']);
+                $data['bcc'][$bccDetails['email']] = $bccDetails['name'];
             }
         }
 
