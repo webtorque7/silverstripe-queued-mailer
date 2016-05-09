@@ -23,6 +23,6 @@ Injector:
       0: '%$MailTransport'
 QueueProcessor:
   batch_size: 100
-#  application_indentifier: 'ss-default' #name of application using api
+#  application_identifier: 'ss-default' #name of application using api
   retry_time: 30
   cleanup_days: 5
