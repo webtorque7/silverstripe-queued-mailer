@@ -85,7 +85,7 @@ class QueuedMailer extends \Mailer
             /**
              * @var \WebTorque\QueuedMailer\Transport\Transport $transport
              */
-            $appIdentifier = \Config::inst()->get('QueuedProcessor', 'application_identifier');
+            $appIdentifier = \Config::inst()->get('QueueProcessor', 'application_identifier');
             $transport = \Injector::inst()->get('MailTransport');
             $result = $transport->send(
                 $appIdentifier,
