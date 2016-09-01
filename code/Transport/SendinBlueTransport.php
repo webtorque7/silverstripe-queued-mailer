@@ -69,7 +69,7 @@ class SendinBlueTransport implements Transport
             $ccs = explode(',', $cc);
             foreach ($ccs as $aCc) {
                 $ccDetails = $this->extractEmailToDetails($aCc);
-                $data['ccc'][$ccDetails['email']] = $ccDetails['name'];
+                $data['cc'][$ccDetails['email']] = $ccDetails['name'];
             }
         }
 
