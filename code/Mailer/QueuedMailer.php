@@ -95,8 +95,8 @@ class QueuedMailer extends \Mailer
                 $subject,
                 $htmlContent,
                 $plainContent,
-                $customheaders && !empty($customheaders['Cc']) ? $customheaders['cc'] : null,
-                $customheaders && !empty($customheaders['Bcc']) ? $customheaders['bcc'] : null,
+                $customheaders && !empty($customheaders['Cc']) ? $customheaders['Cc'] : null,
+                $customheaders && !empty($customheaders['Bcc']) ? $customheaders['Bcc'] : null,
                 $attachedFiles,
                 $customheaders
             );
