@@ -78,11 +78,19 @@ class SendinBlueTransport implements Transport
         }
 
         if (!empty($cc)) {
-            $data['cc'] = $cc;
+            $ccs = explode(',', $cc);
+            foreach ($ccs as $aCc) {
+                $ccDetails = $this->extractEmailToDetails($aCc);
+                $data['cc'][$ccDetails['email']] = $ccDetails['name'];
+            }
         }
 
         if (!empty($bcc)) {
-            $data['bcc'] = $bcc;
+            $bccs = explode(',', $bcc);
+            foreach ($bccs as $aBcc) {
+                $bccDetails = $this->extractEmailToDetails($aBcc);
+                $data['bcc'][$bccDetails['email']] = $bccDetails['name'];
+            }
         }
 
         $result = $this->mailin->send_email($data);
