@@ -47,22 +47,10 @@ class SendinBlueTransport implements Transport
             $headers['X-Mailin-IP'] = $this->ipAddress;
         }
 
-        $name = '';
-
-        if (stripos($to, '<') !== false) {
-
-            $parts = explode('<', $to);
-            $name = $parts[0];
-
-            preg_match('/\\<(.*?)\\>/', $to, $matches);
-
-            if (!empty($matches)) {
-                $to = $matches[1];
-            }
-        }
+        $toAddress = $this->extractEmailToDetails($to);
 
         $data = array(
-            'to' => array($to => $name),
+            'to' => array($toAddress['email'] => $toAddress['name']),
             'from' => array($from),
             'subject' => $subject,
             'html' => !empty($html) ? $html : $plain,
@@ -81,7 +69,7 @@ class SendinBlueTransport implements Transport
             $ccs = explode(',', $cc);
             foreach ($ccs as $aCc) {
                 $ccDetails = $this->extractEmailToDetails($aCc);
-                $data['cc'][$ccDetails['email']] = $ccDetails['name'];
+                $data['ccc'][$ccDetails['email']] = $ccDetails['name'];
             }
         }
 
@@ -96,5 +84,40 @@ class SendinBlueTransport implements Transport
         $result = $this->mailin->send_email($data);
 
         return $result['code'] === 'success' ? $result['data']['message-id'] : false;
+    }
+
+    /**
+     * Returns array in the format:
+     * <code>
+     * array(
+     *     'name' => 'John Smith',
+     *     'email' => 'john.smith@email.com'
+     * );
+     * </code>
+     *
+     * @param $to
+     * @return array
+     */
+    protected function extractEmailToDetails($to)
+    {
+        $email = $to;
+        $name = '';
+
+        if (stripos($to, '<') !== false) {
+
+            $parts = explode('<', $to);
+            $name = $parts[0];
+
+            preg_match('/\\<(.*?)\\>/', $to, $matches);
+
+            if (!empty($matches)) {
+                $email = $matches[1];
+            }
+        }
+
+        return array(
+            'name' => $name,
+            'email' => $email
+        );
     }
 }
