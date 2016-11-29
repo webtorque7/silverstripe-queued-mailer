@@ -98,4 +98,24 @@ class QueuedMailerTest extends FunctionalTest
         $this->assertNotEmpty($attachments, 'Should return an array of attachments');
         $this->assertNotEmpty($attachments['test.txt'], 'Filename should be present in attachments array');
     }
+
+    /**
+     * Todo: refactor transport so this can be tested better
+     */
+    public function testMultipleToAddresses() {
+        $to = 'conrad.test.2@webtorque.co.nz,conrad.test.1@webtorque.co.nz';
+        $from = 'test@webtorque.co.nz';
+        $subject = 'This is my test subject';
+        $body = 'This is my body with multiple to addresses';
+
+        /**
+         * @var \WebTorque\QueuedMailer\Transport\SendinBlueTransport
+         */
+        $transport = Injector::inst()->get('MailTransport');
+
+        $result = $transport->send('ss-default', 'test', $to, $from, $subject, $body, $body, null, null, null, null);
+
+        Debug::dump($result);
+        $this->assertNotEmpty($result, 'Should return a message id');
+    }
 }

@@ -46,11 +46,18 @@ class SendinBlueTransport implements Transport
         if (!empty($this->ipAddress)) {
             $headers['X-Mailin-IP'] = $this->ipAddress;
         }
+        
+        $toAddresses = array();
 
-        $toAddress = $this->extractEmailToDetails($to);
+        $addresses = explode(',', $to);
+
+        foreach ($addresses as $address) {
+            $extracted = $this->extractEmailToDetails($address);
+            $toAddresses[$extracted['email']] = $extracted['name'];
+        }
 
         $data = array(
-            'to' => array($toAddress['email'] => $toAddress['name']),
+            'to' => $toAddresses,
             'from' => array($from),
             'subject' => $subject,
             'html' => !empty($html) ? $html : $plain,
