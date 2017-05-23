@@ -36,33 +36,38 @@ class QueueProcessor implements QueueProcessorInterface
             strtotime('-' . $retryTime . 'm', strtotime(\SS_Datetime::now())));
 
         $batch = QueuedEmail::get()->where(
-            sprintf('("LastAttempt" <= \'%s\' OR LastAttempt IS NULL) AND "Status" <> \'Sent\'', $lastAttemptTime->getValue())
+            sprintf('("LastAttempt" <= \'%s\' OR LastAttempt IS NULL) AND "Status" not in (\'Sent\', \'Processing\')', $lastAttemptTime->getValue())
         )->limit($batchSize);
 
-        foreach ($batch as $email) {
-            $result = $this->transport->send(
-                $appIdentifier,
-                $appIdentifier . '-' . $email->ID,
-                $email->To,
-                $email->From,
-                $email->Subject,
-                $email->HTML,
-                $email->Plain,
-                $email->CC,
-                $email->BCC,
-                $email->loadAttachments(),
-                $email->loadHeaders(),
-                $email->ReplyTo
-            );
+        if ($batch && $batch->count()) {
+            //mark batch as being processed
+            \DB::query(sprintf('UPDATE "QueuedEmail" SET "Status" = \'Processing\' WHERE "ID" IN (%s)', implode(', ', $batch->column('ID'))));
 
-            if ($result) {
-                $email->Status = 'Sent';
-                $email->Identifier = $result;
-            } else {
-                $email->Status = 'Failed';
+            foreach ($batch as $email) {
+                $result = $this->transport->send(
+                    $appIdentifier,
+                    $appIdentifier . '-' . $email->ID,
+                    $email->To,
+                    $email->From,
+                    $email->Subject,
+                    $email->HTML,
+                    $email->Plain,
+                    $email->CC,
+                    $email->BCC,
+                    $email->loadAttachments(),
+                    $email->loadHeaders(),
+                    $email->ReplyTo
+                );
+
+                if ($result) {
+                    $email->Status = 'Sent';
+                    $email->Identifier = $result;
+                } else {
+                    $email->Status = 'Failed';
+                }
+
+                $email->write();
             }
-
-            $email->write();
         }
     }
 

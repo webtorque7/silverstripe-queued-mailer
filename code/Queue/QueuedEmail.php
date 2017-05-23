@@ -16,7 +16,7 @@ class QueuedEmail extends \DataObject
         'Attachments' => 'Text',
         'Headers' => 'Text',
         'LastAttempt' => 'SS_Datetime',
-        'Status' => 'Enum("Queued, Sent, Failed, Retry", "Queued")',
+        'Status' => 'Enum("Queued, Processing, Sent, Failed, Retry", "Queued")',
         'Identifier' => 'Varchar(100)'
     );
 
