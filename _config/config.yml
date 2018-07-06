@@ -26,3 +26,8 @@ QueueProcessor:
 #  application_identifier: 'ss-default' #name of application using api
   retry_time: 30
   cleanup_days: 5
+  bounce_precision_minutes: 1
+
+Director:
+  rules:
+    'sendinblue//$Action/$ID/$OtherID': 'BounceHandler'
