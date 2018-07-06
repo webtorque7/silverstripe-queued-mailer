@@ -79,7 +79,7 @@ class QueueProcessor implements QueueProcessorInterface
 
         if ($forwardTo != '') {
             foreach ($bouncedEmails as $bounced) {
-                $bouncedTime = $bounced->dbObject('Timestamp')->value;
+                $bouncedTime = $bounced->dbObject('TimeStamp')->value;
                 $precision = self::config()->bounce_precision_minutes;
                 $max = date('Y-m-d H:i:s', strtotime('+' . $precision . ' minutes', strtotime($bouncedTime)));
                 $min = date('Y-m-d H:i:s', strtotime('-' . $precision . ' minutes', strtotime($bouncedTime)));
@@ -94,10 +94,8 @@ class QueueProcessor implements QueueProcessorInterface
                     $email = \Email::create();
                     $email->setTo($forwardTo);
                     $email->setFrom($match->From);
-                    $email->setSubject($match->Subject);
-                    $forwardText = '<p>The following email was bounced from ' . $match->To . '</p>';
-                    $forwardText .= '<div>' . $match->HTML . '</div>';
-                    $email->setBody($forwardText);
+                    $email->setSubject('Email bounced from ' . $match->To);
+                    $email->setBody($match->HTML);
                     $email->addCustomHeader('queue', 1);
                     $email->send();
 
