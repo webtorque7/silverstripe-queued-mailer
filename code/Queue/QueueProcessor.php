@@ -69,6 +69,49 @@ class QueueProcessor implements QueueProcessorInterface
                 $email->write();
             }
         }
+
+        $this->resendBounced();
+    }
+
+    /**
+     * check for bounced email and resend before deleting
+     */
+    public function resendBounced()
+    {
+        $sendEmails = QueuedEmail::get()->filter(array('Status' => 'Sent'));
+        $bouncedEmails = \SendInBlueBounced::get()->filter(array('Forwarded' => false));
+        $forwardTo = \SiteConfig::current_site_config()->SendInBlueForwardedTo;
+
+        if ($forwardTo != '') {
+            foreach ($bouncedEmails as $bounced) {
+                $bouncedTime = $bounced->dbObject('Timestamp')->value;
+                $precision = self::config()->bounce_precision_minutes;
+                $max = date('Y-m-d H:i:s', strtotime('+' . $precision . ' minutes', strtotime($bouncedTime)));
+                $min = date('Y-m-d H:i:s', strtotime('-' . $precision . ' minutes', strtotime($bouncedTime)));
+
+                $match = $sendEmails->filter(array(
+                    'To' => $bounced->Email,
+                    'LastEdited:GreaterThan' => $min,
+                    'LastEdited:LessThan' => $max
+                ))->first();
+
+                if ($match && $match->exists()) {
+                    $email = \Email::create();
+                    $email->setTo($forwardTo);
+                    $email->setFrom($match->From);
+                    $email->setSubject($match->Subject);
+                    $forwardText = '<p>The following email was bounced from ' . $match->To . '</p>';
+                    $forwardText .= '<div>' . $match->HTML . '</div>';
+                    $email->setBody($forwardText);
+                    $email->addCustomHeader('queue', 1);
+                    $email->send();
+
+                    $bounced->Forwarded = true;
+                    $bounced->ForwardedTo = $forwardTo;
+                    $bounced->write();
+                }
+            }
+        }
     }
 
     /**
